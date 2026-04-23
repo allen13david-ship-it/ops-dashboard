@@ -1768,6 +1768,13 @@ document.getElementById("refreshAttendance").addEventListener("click", () => {
   renderAttendanceTable(dateStr);
 });
 
+fetch("https://allen13david-ship-it.github.io/va-attendance/va-profiles.json")
+  .then(r => r.json())
+  .then(data => {
+      vaProfiles = data;
+      renderVAList(); // whatever function builds your dropdown
+  });
+
 // Initialize with today
 document.getElementById("attendanceDate").value = new Date().toISOString().slice(0,10);
 const initDate = document.getElementById("attendanceDate").value;
