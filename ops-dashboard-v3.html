@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ops Command Dashboard</title>
+<style>
+:root{
+  --bg:#020617;
+  --bg-elevated:#020617;
+  --border:#1f2937;
+  --accent:#38bdf8;
+  --accent-soft:#0f172a;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --danger:#f97373;
+  --success:#4ade80;
+  --warning:#facc15;
+  --card-radius:10px;
+  --shadow:0 18px 45px rgba(0,0,0,0.55);
+  --pill-bg:#020617;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at top,#0b1120 0,#020617 55%,#000 100%);
+  color:var(--text);
+}
+.app-shell{
+  max-width:1200px;
+  margin:24px auto;
+  padding:0 16px 40px;
+}
+.app-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+}
+.app-title{
+  font-size:20px;
+  font-weight:600;
+}
+.app-subtitle{
+  font-size:12px;
+  color:var(--muted);
+}
+.nav{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.nav-btn{
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,0.9);
+  color:var(--muted);
+  padding:6px 10px;
+  font-size:11px;
+  cursor:pointer;
+}
+.nav-btn.active{
+  border-color:var(--accent);
+  color:var(--text);
+  background:linear-gradient(135deg,#0f172a,#020617);
+}
+.main-grid{
+  display:grid;
+  grid-template-columns:2.1fr 1.1fr;
+  gap:12px;
+}
+.section{
+  display:none;
+}
+.section.active{
+  display:block;
+}
+.card{
+  background:var(--bg-elevated);
+  border-radius:var(--card-radius);
+  border:1px solid var(--border);
+  padding:10px;
+  box-shadow:var(--shadow);
+}
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+.card-header h3{
+  margin:0;
+  font-size:13px;
+}
+.card-header small{
+  font-size:11px;
+  color:var(--muted);
+}
+.btn{
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#020617;
+  color:var(--text);
+  font-size:11px;
+  padding:4px 10px;
+  cursor:pointer;
+}
+.btn.secondary{
+  color:var(--muted);
+}
+.btn.primary{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.btn.danger{
+  border-color:var(--danger);
+  color:var(--danger);
+}
+.icon-btn{
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#020617;
+  color:var(--muted);
+  font-size:11px;
+  padding:2px 8px;
+  cursor:pointer;
+}
+.icon-btn.danger{
+  border-color:var(--danger);
+  color:var(--danger);
+}
+h2{
+  margin:0 0 6px;
+  font-size:14px;
+}
+.link-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.link-chip{
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#020617;
+  color:var(--text);
+  font-size:11px;
+  padding:4px 10px;
+  cursor:pointer;
+}
+.link-chip:hover{
+  border-color:var(--accent);
+}
+.muted{color:var(--muted);font-size:11px;}
+.table-wrapper{
+  border-radius:8px;
+  border:1px solid var(--border);
+  overflow:auto;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+}
+th,td{
+  padding:4px 6px;
+  border-bottom:1px solid #111827;
+}
+th{
+  text-align:left;
+  font-weight:500;
+  color:var(--muted);
+  background:#020617;
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+.task-row.status-completed{background:rgba(22,163,74,0.08);}
+.task-row.status-in-progress{background:rgba(234,179,8,0.06);}
+.task-row.status-blocked{background:rgba(239,68,68,0.06);}
+.task-row.status-cancelled{background:rgba(148,163,184,0.06);}
+.task-inline-input,.task-inline-select{
+  width:100%;
+  background:#020617;
+  border-radius:6px;
+  border:1px solid #111827;
+  color:var(--text);
+  font-size:11px;
+  padding:2px 4px;
+}
+.notes-preview{
+  max-width:180px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:var(--muted);
+}
+.pill-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-bottom:6px;
+}
+.pill{
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:#020617;
+  color:var(--muted);
+  font-size:10px;
+  padding:2px 8px;
+  cursor:pointer;
+}
+.pill.active{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.va-layout{
+  display:grid;
+  grid-template-columns:1.1fr 2fr;
+  gap:10px;
+}
+.va-card{
+  border-radius:8px;
+  border:1px solid var(--border);
+  padding:6px;
+  font-size:11px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.va-card-actions{
+  display:flex;
+  gap:4px;
+  margin-top:4px;
+}
+.profile-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+.profile-field{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.profile-field label{
+  font-size:10px;
+  color:var(--muted);
+}
+.profile-field input,.profile-field textarea,.profile-field select{
+  background:#020617;
+  border-radius:6px;
+  border:1px solid #111827;
+  color:var(--text);
+  font-size:11px;
+  padding:4px 6px;
+}
+.profile-field textarea{
+  min-height:60px;
+  resize:vertical;
+}
+#vaProfileDetails{display:none;}
+#taskPanelBackdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.7);
+  display:none;
+  z-index:40;
+}
+#taskPanel{
+  position:fixed;
+  top:0;
+  right:-360px;
+  width:320px;
+  height:100vh;
+  background:#020617;
+  border-left:1px solid var(--border);
+  box-shadow:-18px 0 45px rgba(0,0,0,0.7);
+  padding:10px;
+  z-index:50;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  transition:right 0.22s ease-out;
+}
+#taskPanel.open{right:0;}
+.task-panel-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.task-panel-header h3{
+  margin:0;
+  font-size:13px;
+}
+.task-panel-body{
+  flex:1;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.task-panel-footer{
+  display:flex;
+  justify-content:space-between;
+  gap:6px;
+}
+.task-panel-field{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.task-panel-field label{
+  font-size:10px;
+  color:var(--muted);
+}
+.task-panel-field input,.task-panel-field select,.task-panel-field textarea{
+  background:#020617;
+  border-radius:6px;
+  border:1px solid #111827;
+  color:var(--text);
+  font-size:11px;
+  padding:4px 6px;
+}
+.task-panel-field textarea{
+  min-height:80px;
+  resize:vertical;
+}
+
+/* REPORTS DASHBOARD */
+.report-card{
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#020617;
+  padding:8px;
+  font-size:11px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.report-title-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:6px;
+}
+.report-status{
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  white-space:nowrap;
+}
+.report-status.updated{
+  border-color:var(--success);
+  color:var(--success);
+}
+.report-status.pending{
+  border-color:var(--warning);
+  color:var(--warning);
+}
+.report-status.missing{
+  border-color:var(--danger);
+  color:var(--danger);
+}
+.report-meta{
+  font-size:10px;
+  color:var(--muted);
+}
+.report-actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:4px;
+  gap:6px;
+}
+.report-icon{font-size:16px;}
+.report-summary-chip{
+  border-radius:999px;
+  border:1px solid var(--border);
+  padding:4px 8px;
+  font-size:10px;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+}
+#reportsSummaryRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:6px;
+  font-size:11px;
+}
+
+/* TASK SUMMARY DASHBOARD */
+.summary-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:6px;
+}
+.summary-card{
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#020617;
+  padding:6px;
+  font-size:11px;
+}
+.summary-card-title{
+  font-size:10px;
+  color:var(--muted);
+}
+.summary-card-value{
+  font-size:16px;
+  font-weight:600;
+}
+.summary-card-sub{
+  font-size:10px;
+  color:var(--muted);
+}
+.bar-row{
+  margin-top:6px;
+}
+.bar-label{
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  color:var(--muted);
+}
+.bar-track{
+  margin-top:2px;
+  width:100%;
+  height:6px;
+  border-radius:999px;
+  background:#020617;
+  border:1px solid #111827;
+  overflow:hidden;
+}
+.bar-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#38bdf8,#22c55e);
+}
+
+/* EOD MODAL */
+#eodBackdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.7);
+  display:none;
+  z-index:60;
+}
+#eodModal{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:520px;
+  max-width:95vw;
+  max-height:80vh;
+  background:#020617;
+  border-radius:10px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  padding:10px;
+  display:none;
+  flex-direction:column;
+  gap:6px;
+  z-index:70;
+}
+#eodModalHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+#eodModalHeader h3{
+  margin:0;
+  font-size:13px;
+}
+#eodModalBody{
+  flex:1;
+  overflow:auto;
+  font-size:11px;
+}
+#eodModalBody pre{
+  white-space:pre-wrap;
+  font-family:system-ui,monospace;
+}
+#eodModalFooter{
+  display:flex;
+  justify-content:flex-end;
+  gap:6px;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .main-grid{grid-template-columns:1fr;}
+  .va-layout{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="app-header">
+    <div>
+      <div class="app-title">Ops Command Dashboard</div>
+      <div class="app-subtitle">Tasks · Reports · VA Profiles · Coaching · Time & Attendance · Tickets</div>
+    </div>
+    <button class="btn danger" id="btnResetAll">Reset All Data</button>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+    <button class="nav-btn" data-section="task-analytics">Task Analytics</button>
+    <button class="nav-btn" data-section="tasks">Tasks & Reports</button>
+    <button class="nav-btn" data-section="va">VA Profiles</button>
+    <button class="nav-btn" data-section="coaching">Coaching</button>
+    <button class="nav-btn" data-section="time">Time & Attendance</button>
+    <button class="nav-btn" data-section="tickets">Tickets</button>
+    <button class="nav-btn" data-section="reports">Reports</button>
+  </div>
+
+  <!-- DASHBOARD (Task Summary full view) -->
+  <div id="section-dashboard" class="section active">
+    <div class="main-grid">
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Task Summary Dashboard</h3>
+              <small>Overall view of all tasks and statuses</small>
+            </div>
+            <button class="btn secondary" id="btnRefreshSummaryMain">⟳ Refresh</button>
+          </div>
+          <div id="taskSummaryMain"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Key links</h3>
+              <small>Core Ops Reports</small>
+            </div>
+          </div>
+          <div class="link-list">
+            <button class="link-chip" title="Open Attendance Sheet"
+              onclick="openExternal('https://docs.google.com/spreadsheets/d/177oXMhwgVnFmYlrs9PnUoFUM1W2OmZGKtkidapz2iws/edit?usp=sharing')">
+              📊 Attendance Sheet
+            </button>
+            <button class="link-chip" title="Open GTS Report"
+              onclick="openExternal('https://docs.google.com/spreadsheets/d/1Gu89iuO_54Yl98yaDUDociG9PdzSvlCv0e0SUg63heE/edit?usp=sharing')">
+              📊 GTS
+            </button>
+            <button class="link-chip" title="Open Global View"
+              onclick="openExternal('https://docs.google.com/spreadsheets/d/1oF4HXGT_r0XMFd8ipgiwkyKH5sWeC40A71KwoDAUpE4/edit?usp=sharing')">
+              🌐 Global View
+            </button>
+            <button class="link-chip" title="Open End of Month Report"
+              onclick="openExternal('https://docs.google.com/spreadsheets/d/1y0KEt2bb6zlec5GrBbMPmRx8zLt5SLMlWkeCIWQFiCk/edit?usp=sharing')">
+              📊 End of Month Report (EOM)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK ANALYTICS (EOD + graphs) -->
+  <div id="section-task-analytics" class="section">
+    <div class="main-grid">
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Task Analytics</h3>
+              <small>Visual breakdown of tasks and statuses</small>
+            </div>
+            <button class="btn secondary" id="btnRefreshSummaryAnalytics">⟳ Refresh</button>
+          </div>
+          <div id="taskSummaryAnalytics"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>End of Day Report</h3>
+              <small>Tasks created and completed today</small>
+            </div>
+            <button class="btn primary" id="btnGenerateEOD">Generate EOD</button>
+          </div>
+          <div class="muted">
+            Generates a text summary of:
+            <ul style="margin:4px 0 0 16px;padding:0;">
+              <li>Tasks created today (including onboarding)</li>
+              <li>Tasks completed today</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASKS & REPORTS -->
+  <div id="section-tasks" class="section">
+    <div class="main-grid">
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3>Task Summary</h3>
+              <small>Quick view of current workload</small>
+            </div>
+            <button class="btn secondary" id="btnRefreshSummaryInline">⟳ Refresh</button>
+          </div>
+          <div id="taskSummaryInline"></div>
+        </div>
+
+        <div class="card" style="margin-top:10px;">
+          <div class="card-header">
+            <div>
+              <h3>Tasks</h3>
+              <small>Inline editing + side panel</small>
+            </div>
+            <button class="btn primary" id="btnAddTask">＋ Add Task</button>
+          </div>
+          <div class="pill-row" id="freqFilters">
+            <div class="pill active" data-freq="all">All</div>
+            <div class="pill" data-freq="daily">Daily</div>
+            <div class="pill" data-freq="weekly">Weekly</div>
+            <div class="pill" data-freq="monthly">Monthly</div>
+            <div class="pill" data-freq="quarterly">Quarterly</div>
+            <div class="pill" data-freq="semi-annual">Semi-annual</div>
+            <div class="pill" data-freq="annual">Annual</div>
+            <div class="pill" data-freq="as needed">As Needed</div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Status</th>
+                  <th>Frequency</th>
+                  <th>Due</th>
+                  <th>Owner</th>
+                  <th>Notes</th>
+                  <th>Edit</th>
+                  <th>Del</th>
+                </tr>
+              </thead>
+              <tbody id="taskTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" id="reportsDashboardCardInline">
+          <div class="card-header">
+            <div>
+              <h3>Reports Dashboard (Summary)</h3>
+              <small>Core Ops Reports status</small>
+            </div>
+          </div>
+          <div id="reportsSummaryRowInline"></div>
+          <details open style="margin-top:6px;">
+            <summary style="cursor:pointer;font-size:11px;color:var(--muted);">
+              Core Ops Reports
+            </summary>
+            <div id="reportsListInline" style="margin-top:6px;display:grid;grid-template-columns:1fr;gap:6px;"></div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VA PROFILES -->
+  <div id="section-va" class="section">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3>VA Profiles</h3>
+          <small>Profiles + onboarding tasks</small>
+        </div>
+        <button class="btn primary" id="btnNewVA">＋ New VA</button>
+      </div>
+      <div class="va-layout">
+        <div>
+          <div class="muted" style="margin-bottom:4px;">VA List</div>
+          <div id="vaListContainer" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div>
+          <div class="profile-field" style="margin-bottom:6px;">
+            <label>Select VA</label>
+            <select id="vaSelect"></select>
+          </div>
+          <div id="vaProfileDetails" class="card" style="padding:8px;">
+            <div class="profile-grid">
+              <div class="profile-field">
+                <label>VA Name</label>
+                <input id="profileVaName">
+              </div>
+              <div class="profile-field">
+                <label>Contractor ID</label>
+                <input id="profileContractorId">
+              </div>
+              <div class="profile-field">
+                <label>Client</label>
+                <input id="profileClient">
+              </div>
+              <div class="profile-field">
+                <label>PT/FT</label>
+                <input id="profilePtFt">
+              </div>
+              <div class="profile-field">
+                <label>Schedule (PST)</label>
+                <input id="profileSchedulePst">
+              </div>
+              <div class="profile-field">
+                <label>Schedule (MNL)</label>
+                <input id="profileScheduleMnl">
+              </div>
+              <div class="profile-field">
+                <label>Training Date</label>
+                <input type="date" id="profileTrainingDate">
+              </div>
+              <div class="profile-field">
+                <label>Onboarding Date</label>
+                <input type="date" id="profileOnboardingDate">
+              </div>
+              <div class="profile-field">
+                <label>Client Start Date</label>
+                <input type="date" id="profileClientStartDate">
+              </div>
+              <div class="profile-field">
+                <label>CSM</label>
+                <input id="profileCsm">
+              </div>
+              <div class="profile-field">
+                <label>Biz Channel</label>
+                <input id="profileBizChannel">
+              </div>
+              <div class="profile-field">
+                <label>Attendance Channel</label>
+                <input id="profileAttendanceChannel">
+              </div>
+              <div class="profile-field">
+  					<label>Status</label>
+ 					 <select id="profileStatus">
+    						<option value="">— Select Status —</option>
+   						<option>Active</option>
+    						<option>Inactive</option>
+   						<option>LWOP</option>
+    						<option>Pending</option>
+    						<option>Training</option>
+    						<option>Onboarding</option>
+    						<option>Completed</option>
+  					</select>
+	   </div>
+
+              <div class="profile-field">
+                <label>Contract File Link</label>
+                <div style="display:flex;gap:4px;">
+                  <input id="profileContractFileLink" style="flex:1;">
+                  <button class="icon-btn" id="btnOpenContractLink">Open</button>
+                </div>
+              </div>
+              <div class="profile-field" style="grid-column:1/-1;">
+                <label>Notes</label>
+                <textarea id="profileNotes"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COACHING -->
+  <div id="section-coaching" class="section">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3>Coaching</h3>
+          <small>Placeholder for coaching notes / sessions</small>
+        </div>
+      </div>
+      <div class="muted">You can extend this section later.</div>
+    </div>
+  </div>
+
+  <!-- TIME & ATTENDANCE -->
+<div id="section-time" class="section">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3>Time & Attendance</h3>
+        <small>Daily attendance summary and full VA attendance list</small>
+      </div>
+    </div>
+
+    <!-- DATE SELECTOR -->
+    <div style="margin-bottom:12px;">
+      <label for="attendanceDate" style="font-size:12px;color:#9ca3af;">Select Date:</label>
+      <input type="date" id="attendanceDate" style="padding:6px 8px;font-size:12px;">
+      <button class="btn primary" id="refreshAttendance">Refresh</button>
+    </div>
+
+    <!-- SUMMARY BOX -->
+    <div id="attendanceSummary" class="card" style="margin-top:10px;">
+      <h4 style="margin:0 0 6px;">Attendance Summary</h4>
+      <div id="summaryContent" style="font-size:13px;color:#9ca3af;">
+        Loading…
+      </div>
+    </div>
+
+    <!-- ATTENDANCE TABLE -->
+    <div class="card" style="margin-top:12px;">
+      <h4 style="margin:0 0 6px;">Attendance List</h4>
+      <div id="attendanceTableContainer">Loading…</div>
+    </div>
+  </div>
+</div>
+
+  <!-- TICKETS -->
+  <div id="section-tickets" class="section">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3>Tickets</h3>
+          <small>Placeholder for ticket tracking</small>
+        </div>
+      </div>
+      <div class="muted">You can add ticket fields and flows here later.</div>
+    </div>
+  </div>
+
+  <!-- REPORTS (Full page) -->
+  <div id="section-reports" class="section">
+    <div class="card" id="reportsDashboardCard">
+      <div class="card-header">
+        <div>
+          <h3>Reports Dashboard</h3>
+          <small>Core Ops Reports with manual status</small>
+        </div>
+      </div>
+      <div id="reportsSummaryRow"></div>
+      <details open style="margin-top:6px;">
+        <summary style="cursor:pointer;font-size:11px;color:var(--muted);">
+          Core Ops Reports
+        </summary>
+        <div id="reportsList" style="margin-top:6px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;"></div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- Task side panel -->
+<div id="taskPanelBackdrop"></div>
+<div id="taskPanel">
+  <div class="task-panel-header">
+    <h3>Edit Task</h3>
+    <button class="icon-btn" id="taskPanelClose">✕</button>
+  </div>
+  <div class="task-panel-body">
+    <div class="task-panel-field">
+      <label>Task Name</label>
+      <input id="panelTaskName">
+    </div>
+    <div class="task-panel-field">
+      <label>Status</label>
+      <select id="panelTaskStatus">
+        <option>Not Started</option>
+        <option>In Progress</option>
+        <option>Completed</option>
+        <option>Blocked</option>
+        <option>Cancelled</option>
+      </select>
+    </div>
+    <div class="task-panel-field">
+      <label>Frequency</label>
+      <select id="panelTaskFrequency">
+        <option>As Needed</option>
+        <option>Daily</option>
+        <option>Weekly</option>
+        <option>Monthly</option>
+        <option>Quarterly</option>
+        <option>Semi-annual</option>
+        <option>Annual</option>
+      </select>
+    </div>
+    <div class="task-panel-field">
+      <label>Due Date</label>
+      <input type="date" id="panelTaskDue">
+    </div>
+    <div class="task-panel-field">
+      <label>Owner</label>
+      <select id="panelTaskOwner">
+        <option>VA</option>
+        <option>CSM</option>
+        <option>Yourself</option>
+        <option>Team</option>
+      </select>
+    </div>
+    <div class="task-panel-field">
+      <label>Notes</label>
+      <textarea id="panelTaskNotes"></textarea>
+    </div>
+  </div>
+  <div class="task-panel-footer">
+    <button class="btn secondary" id="panelCancelTask">Cancel</button>
+    <button class="btn primary" id="panelSaveTask">Save</button>
+  </div>
+</div>
+
+<!-- EOD Modal -->
+<div id="eodBackdrop"></div>
+<div id="eodModal">
+  <div id="eodModalHeader">
+    <h3>End of Day Report</h3>
+    <button class="icon-btn" id="eodClose">✕</button>
+  </div>
+  <div id="eodModalBody">
+    <pre id="eodText"></pre>
+  </div>
+  <div id="eodModalFooter">
+    <button class="btn secondary" id="eodCopy">Copy</button>
+    <button class="btn primary" id="eodClose2">Close</button>
+  </div>
+</div>
+
+<script>
+// NAV
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const target=btn.dataset.section;
+    document.querySelectorAll(".section").forEach(sec=>sec.classList.remove("active"));
+    document.getElementById("section-"+target).classList.add("active");
+  });
+});
+function openExternal(url){
+  if(!url||url==="#"){alert("This link is not yet configured.");return;}
+  window.open(url,"_blank");
+}
+
+// DATA
+let tasks=[];
+let vaProfiles=[];
+let attendanceLogs = [];
+let reportStates={};
+
+// LOCALSTORAGE
+function saveData(){
+  try{
+    localStorage.setItem("tasks",JSON.stringify(tasks));
+    localStorage.setItem("vaProfiles",JSON.stringify(vaProfiles));
+    localStorage.setItem("reportStates",JSON.stringify(reportStates));
+  }catch(e){console.error("Error saving",e);}
+}
+function loadData(){
+  try{
+    const t=localStorage.getItem("tasks");
+    const v=localStorage.getItem("vaProfiles");
+    const a=localStorage.getItem("attendanceLogs");
+    const r=localStorage.getItem("reportStates");
+    if(t)tasks=JSON.parse(t)||[];
+    if(v)vaProfiles=JSON.parse(v)||[];
+    if(a) attendanceLogs = JSON.parse(a) || [];
+    if(r)reportStates=JSON.parse(r)||{};
+  }catch(e){
+    console.error("Error loading",e);
+    tasks=[];
+    vaProfiles=[];
+    attendanceLogs = [];
+    reportStates={};
+  }
+}
+
+// REPORTS CONFIG
+const reportsConfig=[
+  {
+    id:"attendance",
+    name:"Attendance Sheet",
+    icon:"📊",
+    url:"https://docs.google.com/spreadsheets/d/177oXMhwgVnFmYlrs9PnUoFUM1W2OmZGKtkidapz2iws/edit?usp=sharing",
+    tooltip:"Daily attendance tracking"
+  },
+  {
+    id:"gts",
+    name:"GTS",
+    icon:"📊",
+    url:"https://docs.google.com/spreadsheets/d/1Gu89iuO_54Yl98yaDUDociG9PdzSvlCv0e0SUg63heE/edit?usp=sharing",
+    tooltip:"GTS performance and tracking"
+  },
+  {
+    id:"globalView",
+    name:"Global View",
+    icon:"🌐",
+    url:"https://docs.google.com/spreadsheets/d/1oF4HXGT_r0XMFd8ipgiwkyKH5sWeC40A71KwoDAUpE4/edit?usp=sharing",
+    tooltip:"Global overview of key metrics"
+  },
+  {
+    id:"eom",
+    name:"End of Month Report (EOM)",
+    icon:"📊",
+    url:"https://docs.google.com/spreadsheets/d/1y0KEt2bb6zlec5GrBbMPmRx8zLt5SLMlWkeCIWQFiCk/edit?usp=sharing",
+    tooltip:"Monthly summary and roll-up"
+  }
+];
+
+// TASK HELPERS
+function ensureTaskMeta(task){
+  if(!task.createdAt)task.createdAt=new Date().toISOString();
+  if(!task.updatedAt)task.updatedAt=task.createdAt;
+  if(!("completedAt" in task))task.completedAt=null;
+}
+function buildTaskRow(task){
+  ensureTaskMeta(task);
+  const tr=document.createElement("tr");
+  tr.classList.add("task-row");
+  const s=task.status.toLowerCase().replace(" ","-");
+  if(s==="completed")tr.classList.add("status-completed");
+  if(s==="in-progress")tr.classList.add("status-in-progress");
+  if(s==="blocked")tr.classList.add("status-blocked");
+  if(s==="cancelled")tr.classList.add("status-cancelled");
+  tr.innerHTML=`
+    <td><input class="task-inline-input" data-id="${task.id}" data-field="name" value="${task.name}"></td>
+    <td>
+      <select class="task-inline-select" data-id="${task.id}" data-field="status">
+        <option ${task.status==="Not Started"?"selected":""}>Not Started</option>
+        <option ${task.status==="In Progress"?"selected":""}>In Progress</option>
+        <option ${task.status==="Completed"?"selected":""}>Completed</option>
+        <option ${task.status==="Blocked"?"selected":""}>Blocked</option>
+        <option ${task.status==="Cancelled"?"selected":""}>Cancelled</option>
+      </select>
+    </td>
+    <td>
+      <select class="task-inline-select" data-id="${task.id}" data-field="frequency">
+        <option ${task.frequency==="As Needed"?"selected":""}>As Needed</option>
+        <option ${task.frequency==="Daily"?"selected":""}>Daily</option>
+        <option ${task.frequency==="Weekly"?"selected":""}>Weekly</option>
+        <option ${task.frequency==="Monthly"?"selected":""}>Monthly</option>
+        <option ${task.frequency==="Quarterly"?"selected":""}>Quarterly</option>
+        <option ${task.frequency==="Semi-annual"?"selected":""}>Semi-annual</option>
+        <option ${task.frequency==="Annual"?"selected":""}>Annual</option>
+      </select>
+    </td>
+    <td><input type="date" class="task-inline-input" data-id="${task.id}" data-field="due" value="${task.due||""}"></td>
+    <td>
+      <select class="task-inline-select" data-id="${task.id}" data-field="owner">
+        <option ${task.owner==="VA"?"selected":""}>VA</option>
+        <option ${task.owner==="CSM"?"selected":""}>CSM</option>
+        <option ${task.owner==="Yourself"?"selected":""}>Yourself</option>
+        <option ${task.owner==="Team"?"selected":""}>Team</option>
+      </select>
+    </td>
+    <td><div class="notes-preview">${task.notes||""}</div></td>
+    <td><button class="icon-btn" onclick="openTaskPanel('${task.id}')">✏️</button></td>
+    <td><button class="icon-btn danger" onclick="deleteTask('${task.id}')">🗑️</button></td>
+  `;
+  return tr;
+}
+function renderTaskTable(){
+  const tbody=document.getElementById("taskTableBody");
+  tbody.innerHTML="";
+  const activeFreq=document.querySelector("#freqFilters .pill.active").dataset.freq;
+  const onboardingTasks=tasks.filter(t=>t.group==="onboarding");
+  if(onboardingTasks.length>0){
+    const headerRow=document.createElement("tr");
+    headerRow.innerHTML=`<td colspan="8" style="padding:8px 6px;font-size:11px;color:#38bdf8;border-bottom:1px solid #1f2937;">───── On‑boarding Tasks ─────</td>`;
+    tbody.appendChild(headerRow);
+  }
+  onboardingTasks.forEach(task=>{
+    if(activeFreq!=="all"&&task.frequency.toLowerCase()!==activeFreq)return;
+    tbody.appendChild(buildTaskRow(task));
+  });
+  tasks.filter(t=>t.group!=="onboarding").forEach(task=>{
+    if(activeFreq!=="all"&&task.frequency.toLowerCase()!==activeFreq)return;
+    tbody.appendChild(buildTaskRow(task));
+  });
+}
+document.addEventListener("input",e=>{
+  if(e.target.classList.contains("task-inline-input")||e.target.classList.contains("task-inline-select")){
+    const id=e.target.dataset.id;
+    const field=e.target.dataset.field;
+    const value=e.target.value;
+    const task=tasks.find(t=>t.id===id);
+    if(task){
+      ensureTaskMeta(task);
+      const prevStatus=task.status;
+      task[field]=value;
+      task.updatedAt=new Date().toISOString();
+      if(field==="status"){
+        if(value==="Completed"&&prevStatus!=="Completed"){
+          task.completedAt=new Date().toISOString();
+        }else if(value!=="Completed"){
+          task.completedAt=null;
+        }
+      }
+      saveData();
+      renderTaskTable();
+      refreshAllSummaries();
+    }
+  }
+});
+function deleteTask(id){
+  if(!confirm("Delete this task?"))return;
+  tasks=tasks.filter(t=>t.id!==id);
+  saveData();
+  renderTaskTable();
+  refreshAllSummaries();
+}
+document.getElementById("btnAddTask").addEventListener("click",()=>{
+  const id="t"+Date.now();
+  const now=new Date().toISOString();
+  tasks.push({
+    id,
+    name:"New Task",
+    status:"Not Started",
+    frequency:"As Needed",
+    due:"",
+    owner:"Team",
+    notes:"",
+    group:"regular",
+    createdAt:now,
+    updatedAt:now,
+    completedAt:null
+  });
+  saveData();
+  renderTaskTable();
+  refreshAllSummaries();
+});
+document.querySelectorAll("#freqFilters .pill").forEach(pill=>{
+  pill.addEventListener("click",()=>{
+    document.querySelectorAll("#freqFilters .pill").forEach(p=>p.classList.remove("active"));
+    pill.classList.add("active");
+    renderTaskTable();
+  });
+});
+
+// TASK PANEL
+const taskPanel=document.getElementById("taskPanel");
+const taskPanelBackdrop=document.getElementById("taskPanelBackdrop");
+const taskPanelClose=document.getElementById("taskPanelClose");
+const panelCancelTask=document.getElementById("panelCancelTask");
+let activeTaskId=null;
+function openTaskPanel(id){
+  activeTaskId=id;
+  const task=tasks.find(t=>t.id===id);
+  if(!task)return;
+  ensureTaskMeta(task);
+  document.getElementById("panelTaskName").value=task.name;
+  document.getElementById("panelTaskStatus").value=task.status;
+  document.getElementById("panelTaskFrequency").value=task.frequency;
+  document.getElementById("panelTaskDue").value=task.due||"";
+  document.getElementById("panelTaskOwner").value=task.owner;
+  document.getElementById("panelTaskNotes").value=task.notes||"";
+  taskPanel.classList.add("open");
+  taskPanelBackdrop.style.display="block";
+}
+function closeTaskPanel(){
+  taskPanel.classList.remove("open");
+  taskPanelBackdrop.style.display="none";
+  activeTaskId=null;
+}
+taskPanelClose.addEventListener("click",closeTaskPanel);
+taskPanelBackdrop.addEventListener("click",closeTaskPanel);
+panelCancelTask.addEventListener("click",closeTaskPanel);
+document.getElementById("panelSaveTask").addEventListener("click",()=>{
+  if(!activeTaskId)return;
+  const task=tasks.find(t=>t.id===activeTaskId);
+  if(!task)return;
+  const prevStatus=task.status;
+  task.name=document.getElementById("panelTaskName").value;
+  task.status=document.getElementById("panelTaskStatus").value;
+  task.frequency=document.getElementById("panelTaskFrequency").value;
+  task.due=document.getElementById("panelTaskDue").value;
+  task.owner=document.getElementById("panelTaskOwner").value;
+  task.notes=document.getElementById("panelTaskNotes").value;
+  task.updatedAt=new Date().toISOString();
+  if(task.status==="Completed"&&prevStatus!=="Completed"){
+    task.completedAt=new Date().toISOString();
+  }else if(task.status!=="Completed"){
+    task.completedAt=null;
+  }
+  saveData();
+  closeTaskPanel();
+  renderTaskTable();
+  refreshAllSummaries();
+});
+
+// VA PROFILES
+document.getElementById("btnNewVA").addEventListener("click",()=>{
+  const name=prompt("Enter VA name:");
+  if(!name)return;
+  const id="VA-"+String(vaProfiles.length+1).padStart(3,"0");
+  vaProfiles.push({
+    id,name,contractorId:"",client:"",ptft:"",schedulePst:"",scheduleMnl:"",
+    trainingDate:"",onboardingDate:"",clientStartDate:"",csm:"",
+    bizChannel:"",attendanceChannel:"",contractFileLink:"",status:"",notes:""
+  });
+  const checklist=[
+    "Create BizChannel",
+    "Add to Teams Channel",
+    "Provide Ops Tool Credentials",
+    "Send CTS Link",
+    "Confirm Training Date",
+    "Confirm Client Start Date"
+  ];
+  const now=new Date().toISOString();
+  checklist.forEach(item=>{
+    tasks.unshift({
+      id:"t"+Date.now()+Math.random(),
+      name:`${item} – ${name}`,
+      status:"Not Started",
+      frequency:"As Needed",
+      due:"",
+      owner:"Yourself",
+      notes:"",
+      group:"onboarding",
+      vaId:id,
+      createdAt:now,
+      updatedAt:now,
+      completedAt:null
+    });
+  });
+  saveData();
+  refreshVaSelect();
+  refreshVaList();
+  renderTaskTable();
+  refreshAllSummaries();
+});
+function refreshVaSelect(){
+  const sel=document.getElementById("vaSelect");
+  sel.innerHTML=`<option value="">— No VA selected —</option>`;
+  vaProfiles.forEach(v=>{
+    const opt=document.createElement("option");
+    opt.value=v.id;
+    opt.textContent=`${v.id} — ${v.name}`;
+    sel.appendChild(opt);
+  });
+}
+function refreshVaList(){
+  const container=document.getElementById("vaListContainer");
+  container.innerHTML="";
+  vaProfiles.forEach(v=>{
+    const div=document.createElement("div");
+    div.className="va-card";
+    div.innerHTML=`
+      <div><strong>${v.id}</strong></div>
+      <div>${v.name}</div>
+      <div class="muted">${v.status||"No status"}</div>
+      <div class="va-card-actions">
+        <button class="icon-btn" onclick="selectVA('${v.id}')">Open</button>
+        <button class="icon-btn danger" onclick="deleteVA('${v.id}')">Delete</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+function selectVA(id){
+  const sel=document.getElementById("vaSelect");
+  sel.value=id;
+  const event=new Event("change");
+  sel.dispatchEvent(event);
+}
+document.getElementById("vaSelect").addEventListener("change",()=>{
+  const id=document.getElementById("vaSelect").value;
+  const v=vaProfiles.find(x=>x.id===id);
+  const details=document.getElementById("vaProfileDetails");
+  if(!v){details.style.display="none";return;}
+  details.style.display="block";
+  document.getElementById("profileVaName").value=v.name;
+  document.getElementById("profileContractorId").value=v.contractorId;
+  document.getElementById("profileClient").value=v.client;
+  document.getElementById("profilePtFt").value=v.ptft;
+  document.getElementById("profileSchedulePst").value=v.schedulePst;
+  document.getElementById("profileScheduleMnl").value=v.scheduleMnl;
+  document.getElementById("profileTrainingDate").value=v.trainingDate;
+  document.getElementById("profileOnboardingDate").value=v.onboardingDate;
+  document.getElementById("profileClientStartDate").value=v.clientStartDate;
+  document.getElementById("profileCsm").value=v.csm;
+  document.getElementById("profileBizChannel").value=v.bizChannel;
+  document.getElementById("profileAttendanceChannel").value=v.attendanceChannel;
+  document.getElementById("profileStatus").value=v.status;
+  document.getElementById("profileContractFileLink").value=v.contractFileLink;
+  document.getElementById("profileNotes").value=v.notes;
+});
+function syncCurrentVAFromFields(){
+  const id=document.getElementById("vaSelect").value;
+  if(!id)return;
+  const v=vaProfiles.find(x=>x.id===id);
+  if(!v)return;
+  v.name=document.getElementById("profileVaName").value;
+  v.contractorId=document.getElementById("profileContractorId").value;
+  v.client=document.getElementById("profileClient").value;
+  v.ptft=document.getElementById("profilePtFt").value;
+  v.schedulePst=document.getElementById("profileSchedulePst").value;
+  v.scheduleMnl=document.getElementById("profileScheduleMnl").value;
+  v.trainingDate=document.getElementById("profileTrainingDate").value;
+  v.onboardingDate=document.getElementById("profileOnboardingDate").value;
+  v.clientStartDate=document.getElementById("profileClientStartDate").value;
+  v.csm=document.getElementById("profileCsm").value;
+  v.bizChannel=document.getElementById("profileBizChannel").value;
+  v.attendanceChannel=document.getElementById("profileAttendanceChannel").value;
+  v.status=document.getElementById("profileStatus").value;
+  v.contractFileLink=document.getElementById("profileContractFileLink").value;
+  v.notes=document.getElementById("profileNotes").value;
+  saveData();
+  refreshVaList();
+}
+["profileVaName","profileContractorId","profileClient","profilePtFt","profileSchedulePst","profileScheduleMnl","profileTrainingDate","profileOnboardingDate","profileClientStartDate","profileCsm","profileBizChannel","profileAttendanceChannel","profileStatus","profileContractFileLink","profileNotes"].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){
+    el.addEventListener("input",syncCurrentVAFromFields);
+    el.addEventListener("change",syncCurrentVAFromFields);
+  }
+});
+document.getElementById("btnOpenContractLink").addEventListener("click",()=>{
+  const link=document.getElementById("profileContractFileLink").value.trim();
+  if(!link){alert("No contract link set yet.");return;}
+  window.open(link,"_blank");
+});
+function deleteVA(id){
+  const v=vaProfiles.find(x=>x.id===id);
+  if(!v)return;
+  if(!confirm(`Delete VA ${v.id} — ${v.name}?`))return;
+  const alsoTasks=confirm("Also delete all onboarding tasks linked to this VA?\nOK = delete VA + tasks\nCancel = delete VA only");
+  vaProfiles=vaProfiles.filter(x=>x.id!==id);
+  if(alsoTasks){
+    tasks=tasks.filter(t=>t.vaId!==id);
+  }
+  const sel=document.getElementById("vaSelect");
+  if(sel.value===id){
+    sel.value="";
+    document.getElementById("vaProfileDetails").style.display="none";
+  }
+  saveData();
+  refreshVaSelect();
+  refreshVaList();
+  renderTaskTable();
+  refreshAllSummaries();
+}
+
+// RESET ALL
+const resetBtn=document.getElementById("btnResetAll");
+if(resetBtn){
+  resetBtn.addEventListener("click",()=>{
+    if(!confirm("This will delete ALL tasks, ALL VA profiles, ALL report statuses, and clear LocalStorage. Continue?"))return;
+    if(!confirm("Are you absolutely sure? This cannot be undone."))return;
+    localStorage.clear();
+    tasks=[];
+    vaProfiles=[];
+    reportStates={};
+    renderTaskTable();
+    refreshVaSelect();
+    refreshVaList();
+    document.getElementById("vaProfileDetails").style.display="none";
+    refreshAllSummaries();
+    renderReportsDashboards();
+    alert("All data has been reset.");
+  });
+}
+
+// REPORTS DASHBOARD (Manual status + date picker)
+function getReportState(id){
+  if(!reportStates[id]){
+    reportStates[id]={status:"Pending",lastUpdated:""};
+  }
+  return reportStates[id];
+}
+function setReportState(id,field,value){
+  if(!reportStates[id]){
+    reportStates[id]={status:"Pending",lastUpdated:""};
+  }
+  reportStates[id][field]=value;
+  saveData();
+  renderReportsDashboards();
+}
+function renderReportsSummary(targetId){
+  const container=document.getElementById(targetId);
+  if(!container)return;
+  container.innerHTML="";
+  let counts={Updated:0,Pending:0,Missing:0};
+  reportsConfig.forEach(r=>{
+    const st=getReportState(r.id).status||"Pending";
+    if(st==="Updated")counts.Updated++;
+    else if(st==="Missing")counts.Missing++;
+    else counts.Pending++;
+  });
+  const items=[
+    {label:"Updated",key:"Updated",color:"#4ade80"},
+    {label:"Pending",key:"Pending",color:"#facc15"},
+    {label:"Missing",key:"Missing",color:"#f97373"}
+  ];
+  items.forEach(item=>{
+    const chip=document.createElement("div");
+    chip.className="report-summary-chip";
+    chip.style.borderColor=item.color;
+    chip.style.color=item.color;
+    chip.innerHTML=`<span>●</span><span>${item.label}: ${counts[item.key]||0}</span>`;
+    container.appendChild(chip);
+  });
+}
+function renderReportsList(targetId){
+  const list=document.getElementById(targetId);
+  if(!list)return;
+  list.innerHTML="";
+  reportsConfig.forEach(r=>{
+    const state=getReportState(r.id);
+    const card=document.createElement("div");
+    card.className="report-card";
+    const cls=state.status==="Updated"?"updated":state.status==="Missing"?"missing":"pending";
+    card.innerHTML=`
+      <div class="report-title-row">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="report-icon">${r.icon}</span>
+          <span title="${r.tooltip}">${r.name}</span>
+        </div>
+        <span class="report-status ${cls}">${state.status}</span>
+      </div>
+      <div class="report-meta">
+        Last updated:
+        <input type="date" data-report="${r.id}" class="task-inline-input" style="width:auto;display:inline-block;" value="${state.lastUpdated||""}">
+      </div>
+      <div class="report-actions">
+        <select data-report-status="${r.id}" class="task-inline-select" style="max-width:120px;">
+          <option ${state.status==="Updated"?"selected":""}>Updated</option>
+          <option ${state.status==="Pending"?"selected":""}>Pending</option>
+          <option ${state.status==="Missing"?"selected":""}>Missing</option>
+        </select>
+        <button class="icon-btn" onclick="openExternal('${r.url}')" title="Open report in new tab">Open</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+  list.querySelectorAll("input[type='date']").forEach(input=>{
+    input.addEventListener("change",()=>{
+      const id=input.dataset.report;
+      setReportState(id,"lastUpdated",input.value);
+    });
+  });
+  list.querySelectorAll("select[data-report-status]").forEach(sel=>{
+    sel.addEventListener("change",()=>{
+      const id=sel.dataset["reportStatus"];
+      setReportState(id,"status",sel.value);
+    });
+  });
+}
+function renderReportsDashboards(){
+  renderReportsSummary("reportsSummaryRow");
+  renderReportsList("reportsList");
+  renderReportsSummary("reportsSummaryRowInline");
+  renderReportsList("reportsListInline");
+}
+
+// TASK SUMMARY DASHBOARD (3 instances)
+function computeTaskStats(){
+  const stats={
+    total:tasks.length,
+    byStatus:{},
+    byFreq:{},
+    onboarding:0,
+    regular:0,
+    completedToday:0
+  };
+  const todayStr=new Date().toISOString().slice(0,10);
+  tasks.forEach(t=>{
+    ensureTaskMeta(t);
+    stats.byStatus[t.status]=(stats.byStatus[t.status]||0)+1;
+    stats.byFreq[t.frequency]=(stats.byFreq[t.frequency]||0)+1;
+    if(t.group==="onboarding")stats.onboarding++;
+    else stats.regular++;
+    if(t.completedAt&&t.completedAt.slice(0,10)===todayStr)stats.completedToday++;
+  });
+  return stats;
+}
+function renderTaskSummary(targetId){
+  const container=document.getElementById(targetId);
+  if(!container)return;
+  const s=computeTaskStats();
+  const total=s.total||1;
+  const completed=s.byStatus["Completed"]||0;
+  const inProgress=s.byStatus["In Progress"]||0;
+  const blocked=s.byStatus["Blocked"]||0;
+  const pending=(s.byStatus["Not Started"]||0)+(s.byStatus["Cancelled"]||0);
+  const pctCompleted=Math.round((completed/total)*100);
+  const pctInProgress=Math.round((inProgress/total)*100);
+  const pctBlocked=Math.round((blocked/total)*100);
+  const freqLabels=["As Needed","Daily","Weekly","Monthly","Quarterly","Semi-annual","Annual"];
+  container.innerHTML=`
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-title">Total Tasks</div>
+        <div class="summary-card-value">${s.total}</div>
+        <div class="summary-card-sub">Completed today: ${s.completedToday}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">Completed</div>
+        <div class="summary-card-value">${completed}</div>
+        <div class="summary-card-sub">${pctCompleted}% of all tasks</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">In Progress</div>
+        <div class="summary-card-value">${inProgress}</div>
+        <div class="summary-card-sub">${pctInProgress}% of all tasks</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">Blocked / Pending</div>
+        <div class="summary-card-value">${blocked+pending}</div>
+        <div class="summary-card-sub">Blocked: ${blocked} · Pending: ${pending}</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">Onboarding vs Regular</div>
+        <div class="summary-card-sub">Onboarding: ${s.onboarding} · Regular: ${s.regular}</div>
+        <div class="bar-row">
+          <div class="bar-label">
+            <span>Onboarding</span>
+            <span>${s.total?Math.round((s.onboarding/s.total)*100):0}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${s.total?(s.onboarding/s.total)*100:0}%;background:linear-gradient(90deg,#38bdf8,#6366f1);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">Status Mix</div>
+        <div class="bar-row">
+          <div class="bar-label">
+            <span>Completed</span>
+            <span>${pctCompleted}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pctCompleted}%;background:linear-gradient(90deg,#22c55e,#4ade80);"></div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">
+            <span>In Progress</span>
+            <span>${pctInProgress}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pctInProgress}%;background:linear-gradient(90deg,#facc15,#f97316);"></div>
+          </div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">
+            <span>Blocked</span>
+            <span>${pctBlocked}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pctBlocked}%;background:linear-gradient(90deg,#f97373,#ef4444);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;">
+      <div class="summary-card">
+        <div class="summary-card-title">Frequency Breakdown</div>
+        ${freqLabels.map(label=>{
+          const count=s.byFreq[label]||0;
+          const pct=s.total?Math.round((count/s.total)*100):0;
+          return `
+            <div class="bar-row">
+              <div class="bar-label">
+                <span>${label}</span>
+                <span>${count} · ${pct}%</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:${pct}%;"></div>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+}
+function refreshAllSummaries(){
+  renderTaskSummary("taskSummaryMain");
+  renderTaskSummary("taskSummaryAnalytics");
+  renderTaskSummary("taskSummaryInline");
+}
+document.getElementById("btnRefreshSummaryMain").addEventListener("click",refreshAllSummaries);
+document.getElementById("btnRefreshSummaryAnalytics").addEventListener("click",refreshAllSummaries);
+document.getElementById("btnRefreshSummaryInline").addEventListener("click",refreshAllSummaries);
+
+// EOD REPORT
+const eodBackdrop=document.getElementById("eodBackdrop");
+const eodModal=document.getElementById("eodModal");
+const eodText=document.getElementById("eodText");
+function openEODModal(text){
+  eodText.textContent=text;
+  eodBackdrop.style.display="block";
+  eodModal.style.display="flex";
+}
+function closeEODModal(){
+  eodBackdrop.style.display="none";
+  eodModal.style.display="none";
+}
+document.getElementById("eodClose").addEventListener("click",closeEODModal);
+document.getElementById("eodClose2").addEventListener("click",closeEODModal);
+eodBackdrop.addEventListener("click",closeEODModal);
+document.getElementById("eodCopy").addEventListener("click",()=>{
+  navigator.clipboard.writeText(eodText.textContent||"").then(()=>{
+    alert("EOD report copied to clipboard.");
+  }).catch(()=>alert("Unable to copy."));
+});
+document.getElementById("btnGenerateEOD").addEventListener("click",()=>{
+  const todayStr=new Date().toISOString().slice(0,10);
+  const createdToday=tasks.filter(t=>{
+    ensureTaskMeta(t);
+    return t.createdAt&&t.createdAt.slice(0,10)===todayStr;
+  });
+  const completedToday=tasks.filter(t=>{
+    ensureTaskMeta(t);
+    return t.completedAt&&t.completedAt.slice(0,10)===todayStr;
+  });
+  let lines=[];
+  const todayLabel=new Date().toLocaleDateString();
+  lines.push(`End of Day Report — ${todayLabel}`);
+  lines.push("================================");
+  lines.push("");
+  lines.push(`Tasks created today: ${createdToday.length}`);
+  createdToday.forEach(t=>{
+    lines.push(`- [${t.group==="onboarding"?"Onboarding":"Regular"}] ${t.name} (Owner: ${t.owner}, Status: ${t.status})`);
+  });
+  lines.push("");
+  lines.push(`Tasks completed today: ${completedToday.length}`);
+  completedToday.forEach(t=>{
+    lines.push(`- ${t.name} (Owner: ${t.owner}, Frequency: ${t.frequency})`);
+  });
+  lines.push("");
+  lines.push("Notes:");
+  lines.push("- ");
+  openEODModal(lines.join("\n"));
+});
+
+// INIT
+loadData();
+renderTaskTable();
+refreshVaSelect();
+refreshVaList();
+refreshAllSummaries();
+renderReportsDashboards();
+
+
+// ===============================
+// TIME & ATTENDANCE MODULE
+// ===============================
+
+function getLogsForDate(dateStr) {
+  return attendanceLogs.filter(l => l.date === dateStr);
+}
+
+function classifyAttendance(va, log) {
+  if (va.status === "LWOP") return { status: "LWOP", class: "badge-gray" };
+  if (!log) return { status: "Absent", class: "badge-red" };
+
+  const required = parseFloat(va.requiredHours || 0);
+  const actual = log.totalHours;
+
+  if (required === 0) return { status: "Present", class: "badge-green" };
+
+  const half = required * 0.5;
+
+  if (actual >= required) return { status: "Present", class: "badge-green" };
+  if (actual >= half && actual < required) return { status: "Half‑Day", class: "badge-amber" };
+  if (actual < required && actual > half) return { status: "Undertime", class: "badge-amber" };
+  if (actual < half) return { status: "Absent", class: "badge-red" };
+
+  return { status: "Absent", class: "badge-red" };
+}
+
+function detectLate(va, log) {
+  if (!log || va.flexi) return null;
+  if (!va.scheduledLogin) return null;
+
+  const actual = new Date(log.timeIn);
+  const scheduled = new Date(`${log.date}T${va.scheduledLogin}`);
+
+  if (actual > scheduled) {
+    return { status: "Late", class: "badge-purple" };
+  }
+  return null;
+}
+
+function renderAttendanceSummary(dateStr) {
+  const logs = getLogsForDate(dateStr);
+  const map = {};
+  logs.forEach(l => map[l.vaId] = l);
+
+  let present = 0, absent = 0, half = 0, undertime = 0, lwop = 0, late = 0;
+
+  vaProfiles.forEach(va => {
+    const log = map[va.id] || null;
+    const att = classifyAttendance(va, log);
+    const lateStatus = detectLate(va, log);
+
+    if (att.status === "Present") present++;
+    if (att.status === "Absent") absent++;
+    if (att.status === "Half‑Day") half++;
+    if (att.status === "Undertime") undertime++;
+    if (att.status === "LWOP") lwop++;
+    if (lateStatus) late++;
+  });
+
+  document.getElementById("summaryContent").innerHTML = `
+    <div>Total VAs: <strong>${vaProfiles.length}</strong></div>
+    <div>Present: <strong>${present}</strong></div>
+    <div>Absent: <strong>${absent}</strong></div>
+    <div>Half‑Day: <strong>${half}</strong></div>
+    <div>Undertime: <strong>${undertime}</strong></div>
+    <div>LWOP: <strong>${lwop}</strong></div>
+    <div>Late: <strong>${late}</strong></div>
+  `;
+}
+
+function renderAttendanceTable(dateStr) {
+  const logs = getLogsForDate(dateStr);
+  const map = {};
+  logs.forEach(l => map[l.vaId] = l);
+
+  let html = `
+    <table class="table">
+      <tr>
+        <th>VA</th>
+        <th>Client</th>
+        <th>Time‑In</th>
+        <th>Break</th>
+        <th>Time‑Out</th>
+        <th>Total Hours</th>
+        <th>Status</th>
+      </tr>
+  `;
+
+  vaProfiles.forEach(va => {
+    const log = map[va.id] || null;
+    const att = classifyAttendance(va, log);
+    const late = detectLate(va, log);
+
+    const statusHTML = late
+      ? `<span class="badge ${late.class}">${late.status}</span>`
+      : `<span class="badge ${att.class}">${att.status}</span>`;
+
+    html += `
+      <tr>
+        <td>${va.id} — ${va.name}</td>
+        <td>${va.client || ""}</td>
+        <td>${log ? log.timeIn.slice(11,16) : "—"}</td>
+        <td>${log ? (log.breakMinutes || 0) + " mins" : "—"}</td>
+        <td>${log ? log.timeOut.slice(11,16) : "—"}</td>
+        <td>${log ? log.totalHours.toFixed(2) : "—"}</td>
+        <td>${statusHTML}</td>
+      </tr>
+    `;
+  });
+
+  html += `</table>`;
+  document.getElementById("attendanceTableContainer").innerHTML = html;
+}
+
+document.getElementById("refreshAttendance").addEventListener("click", () => {
+  const dateStr = document.getElementById("attendanceDate").value;
+  renderAttendanceSummary(dateStr);
+  renderAttendanceTable(dateStr);
+});
+
+// Initialize with today
+document.getElementById("attendanceDate").value = new Date().toISOString().slice(0,10);
+const initDate = document.getElementById("attendanceDate").value;
+renderAttendanceSummary(initDate);
+renderAttendanceTable(initDate);
+
+</script>
+</body>
+</html>
